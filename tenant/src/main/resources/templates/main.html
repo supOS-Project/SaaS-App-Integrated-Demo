@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Title</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+</head>
+<body>
+<table>
+    <tr>
+        <td><label>OPEN-API接口名：</label>
+            <select name="open-api" id="methodName">
+                <option value="users/detail">用户详情</option>
+                <option value="users/add">新增用户</option>
+                <option value="users/update">更新用户</option>
+                <option value="users/batchDelete">批量删除用户</option>
+                <option value="users/list">用户列表</option>
+                <option value="users/bindRole">用户绑定角色</option>
+                <option value="users/unbindRole">用户解绑角色</option>
+                <option value="company/list">公司列表</option>
+                <option value="company/detail">公司详情</option>
+                <option value="department/list">部门列表</option>
+                <option value="department/detail">部门详情</option>
+                <option value="position/list">岗位列表</option>
+                <option value="position/detail">岗位详情</option>
+                <option value="person/list">人员列表</option>
+                <option value="person/detail">人员详情</option>
+                <option value="person/listByCompanyCode">指定公司下的人员列表</option>
+                <option value="person/listByDepartmentCode">指定部门下的人员列表</option>
+                <option value="person/listByPositionCode">指定岗位的人员列表</option>
+            </select>
+        </td>
+        <td>
+            <button type="button" id="openApi">提交</button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <textarea rows="25" cols="80" id="apiParam"></textarea>
+        </td>
+        <td>
+            <textarea rows="25" cols="80" id="apiResult"></textarea>
+        </td>
+    </tr>
+</table>
+<script type="application/javascript">
+    let tenantId;
+    $(document).ready(function () {
+        $("#apiParam").val("{\"tenantId\":\"3294bd07b7b04d2c926929dc92cc8680\",\"username\":\"test\"}");
+        function getUrlParam(name) {
+            //构造一个含有目标参数的正则表达式对象
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            //匹配目标参数
+            var r = window.location.search.substr(1).match(reg);
+            //返回参数值
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+        tenantId=getUrlParam("tenantId");
+        $("#methodName").change(function () {
+            let baseQuest = new Object();
+            baseQuest.tenantId = null;
+            baseQuest.current = 1;
+            baseQuest.pageSize = 20;
+            baseQuest.modifyTime = "2021-01-26T16:02:15.666+0800";
+            let tenantId = getUrlParam("tenantId");
+            baseQuest.tenantId = tenantId;
+            let detailQuest = new Object();
+            detailQuest.tenantId = tenantId;
+            let methodName = $("#methodName").val();
+            switch (methodName) {
+                case "users/add":
+                    let userAdd={
+                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "username": "test00027",
+                        "password": "Supos1304#",
+                        "userDesc": "普通用户",
+                        "timeZone": "GMT+0800",
+                        "personCode": "T0002",
+                        "companyCode": "default_org_company",
+                        "accountType": 0,
+                        "roleNameList": [
+                            "R0001"
+                        ]
+                    };
+                    $("#apiParam").val(JSON.stringify(userAdd));
+                    break;
+                case "users/update":
+                    let userUpdate={
+                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "username": "test00027",
+                        "userDesc": "测试用户000027",
+                        "timeZone": "GMT+0000",
+                        "personCode": "T0002",
+                        "lockStatus": 0
+                    };
+                    $("#apiParam").val(JSON.stringify(userUpdate));
+                case "users/batchDelete":
+                    let userDelete={
+                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "nameList":[
+                            "test00027"
+                        ]
+                    };
+                    $("#apiParam").val(JSON.stringify(userDelete));
+                    break;
+                case "users/list":
+                    let userList={
+                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "pageIndex":1,
+                        "pageSize": 20,
+                        "roleCode":"",
+                        "staffCode":"",
+                        "keywords":"",
+                        "companyCode":"default_org_company",
+                        "modifyTime": "2021-01-26T16:02:15.666+0800"
+                    };
+                    $("#apiParam").val(JSON.stringify(userList));
+                    break;
+                case "users/bindRole":
+                    let userBind={
+                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "username":"test003",
+                        "roleCodes":["R0001"]
+                    };
+                    $("#apiParam").val(JSON.stringify(userBind));
+                    break;
+                case "users/unbindRole":
+                    let userUnBind={
+                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "username":"test003",
+                        "roleCodes":["R0001"]
+                    };
+                    $("#apiParam").val(JSON.stringify(userUnBind));
+                    break;
+                case "users/detail":
+                    detailQuest.username = "test";
+                    $("#apiParam").val(JSON.stringify(detailQuest));
+                    break;
+                case "company/detail":
+                    detailQuest.companyCode = "default_org_company";
+                    $("#apiParam").val(JSON.stringify(detailQuest));
+                    break;
+                case "department/detail":
+                    detailQuest.departmentCode = "D001";
+                    $("#apiParam").val(JSON.stringify(detailQuest));
+                    break;
+                case "position/detail":
+                    detailQuest.positionCode = "G0001";
+                    $("#apiParam").val(JSON.stringify(detailQuest));
+                    break;
+                case "person/detail":
+                    detailQuest.personCode = "C0001";
+                    $("#apiParam").val(JSON.stringify(detailQuest));
+                    break;
+                case "company/list":
+                case "department/list":
+                case "position/list":
+                case "person/list":
+                    $("#apiParam").val(JSON.stringify(baseQuest));
+                    break;
+                case "person/listByCompanyCode":
+                    baseQuest.companyCode = "default_org_company";
+                    $("#apiParam").val(JSON.stringify(baseQuest));
+                    break;
+                case "person/listByDepartmentCode":
+                    baseQuest.departmentCode = "D001";
+                    $("#apiParam").val(JSON.stringify(baseQuest));
+                    break;
+                case "person/listByPositionCode":
+                    baseQuest.positionCode = "G0001";
+                    $("#apiParam").val(JSON.stringify(baseQuest));
+            }
+        });
+        $("#openApi").click(function () {
+            $.ajax({
+                url: "/command/exec?method=" + $("#methodName").val()+"&tenantId="+tenantId,
+                type: "POST",
+                contentType: "application/json",
+                dataType: "JSON",
+                data: $("#apiParam").val(),
+                success: function (res) {
+                    $("#apiResult").val(JSON.stringify(res));
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
