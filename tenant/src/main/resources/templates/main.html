@@ -46,7 +46,7 @@
 <script type="application/javascript">
     let tenantId;
     $(document).ready(function () {
-        $("#apiParam").val("{\"tenantId\":\"3294bd07b7b04d2c926929dc92cc8680\",\"username\":\"test\"}");
+
         function getUrlParam(name) {
             //构造一个含有目标参数的正则表达式对象
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -57,6 +57,7 @@
             return null;
         }
         tenantId=getUrlParam("tenantId");
+        $("#apiParam").val("{\"tenantId\":\""+tenantId+"\",\"username\":\"test\"}");
         $("#methodName").change(function () {
             let baseQuest = new Object();
             baseQuest.tenantId = null;
@@ -71,7 +72,7 @@
             switch (methodName) {
                 case "users/add":
                     let userAdd={
-                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "tenantId": tenantId,
                         "username": "test00027",
                         "password": "Supos1304#",
                         "userDesc": "普通用户",
@@ -97,7 +98,7 @@
                     $("#apiParam").val(JSON.stringify(userUpdate));
                 case "users/batchDelete":
                     let userDelete={
-                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "tenantId": tenantId,
                         "nameList":[
                             "test00027"
                         ]
@@ -106,7 +107,7 @@
                     break;
                 case "users/list":
                     let userList={
-                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "tenantId": tenantId,
                         "pageIndex":1,
                         "pageSize": 20,
                         "roleCode":"",
@@ -119,7 +120,7 @@
                     break;
                 case "users/bindRole":
                     let userBind={
-                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "tenantId": tenantId,
                         "username":"test003",
                         "roleCodes":["R0001"]
                     };
@@ -127,7 +128,7 @@
                     break;
                 case "users/unbindRole":
                     let userUnBind={
-                        "tenantId": "3294bd07b7b04d2c926929dc92cc8680",
+                        "tenantId": tenantId,
                         "username":"test003",
                         "roleCodes":["R0001"]
                     };

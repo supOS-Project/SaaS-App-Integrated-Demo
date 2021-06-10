@@ -20,6 +20,15 @@ public class RedisStandaloneUtils {
     //##########################################  String  Start ###################################################
 
     /**
+     * 检查给定 key 是否存在
+     * 若 key 存在返回 true ，否则返回 false 。
+     * @param key
+     * @return
+     */
+    public boolean exists(String key){
+            return jedis.exists(key);
+    }
+    /**
      * 字符串-设置键值，永不过期
      *
      * @param key   key

@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,7 +42,8 @@ public class SaaSAuthFilter implements Filter {
     @Resource
     private RedisStandaloneUtils redisStandaloneUtils;
     ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(100);
-
+    private final static String ACCESS_TOKEN="access-token";
+    private final static String REFRESH_TOKEN="refresh-token";
     @Resource
     private TenantService tenantService;
     @Resource
@@ -56,7 +58,6 @@ public class SaaSAuthFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        String accessTokenCache=  redisStandaloneUtils.get("access-token");
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String requestUrl = request.getRequestURL().toString();
@@ -86,6 +87,8 @@ public class SaaSAuthFilter implements Filter {
             }
             redisStandaloneUtils.set("TENANT-" + tenantId,JSONObject.toJSONString(tenant));
         }
+
+        String accessTokenCache=  redisStandaloneUtils.hget(ACCESS_TOKEN,tenantId);
         if (StringUtils.isBlank(accessTokenCache)) {
             String code = request.getParameter("code");
             if (StringUtils.isBlank(code)) {
@@ -100,27 +103,35 @@ public class SaaSAuthFilter implements Filter {
                 ApiResponse<AuthAccessToken> accessToken = SaaSApi.authService.accessToken(code, LOGOUT_URI);
                 AuthAccessToken authAccessToken=accessToken.getData();
                 if (accessToken.getCode().equals(1)) {
-                    redisStandaloneUtils.setex("refresh-token",authAccessToken.getRefreshToken(),authAccessToken.getExpiresIn().intValue());
-                    redisStandaloneUtils.setex("access-token",authAccessToken.getAccessToken(),authAccessToken.getExpiresIn().intValue());
+                    redisStandaloneUtils.hset(REFRESH_TOKEN,tenantId,authAccessToken.getRefreshToken());
+                    redisStandaloneUtils.hset(ACCESS_TOKEN,tenantId,authAccessToken.getAccessToken());
+                    redisStandaloneUtils.setex(tenantId,tenantId,authAccessToken.getExpiresIn().intValue());
                 String username=authAccessToken.getUsername();
                 //TODO SaaS服务自身的权限业务 eg:
                     User loginUser=userService.getByName(username);
-                    String tokenKey="USER-"+username+LocalDateTime.now().minusMinutes(30).toEpochSecond(ZoneOffset.UTC);
+                    String tokenKey=tenantId+":USER-"+username+LocalDateTime.now().minusMinutes(30).toEpochSecond(ZoneOffset.UTC);
                     redisStandaloneUtils.set(tokenKey,JSONObject.toJSONString(loginUser));
                     ((HttpServletResponse) servletResponse).setHeader(Header.SET_COOKIE.getValue(),"token="+tokenKey);
                 }
                 //启动定时线程，定时刷新token
                 scheduledExecutorService.scheduleAtFixedRate(() -> {
-                    String refresh=redisStandaloneUtils.get("refresh-token");
-                    log.info("token刷新，时间:{}，使用的refresh-token：{}", LocalDateTime.now(),refresh);
-                    if(StringUtils.isNotBlank(refresh)) {
-                        ApiResponse<AuthAccessToken> refreshToken = SaaSApi.authService.refreshToken(refresh);
-                        AuthAccessToken authRefreshToken = refreshToken.getData();
-                        redisStandaloneUtils.setex("refresh-token", authRefreshToken.getRefreshToken(), authRefreshToken.getExpiresIn().longValue());
-                        redisStandaloneUtils.setex("access-token", authRefreshToken.getAccessToken(), authRefreshToken.getExpiresIn().longValue());
-                    }else{
-                        log.info("refresh-token为空，时间：{}",LocalDateTime.now());
-                    }
+                  Map<String,String> refreshTokens= redisStandaloneUtils.hgetAll(REFRESH_TOKEN);
+                  if(refreshTokens!=null && !refreshTokens.isEmpty()){
+                      refreshTokens.entrySet().forEach(x->{
+                          if(redisStandaloneUtils.exists(x.getKey())){
+                              log.info("开始刷新token，tenantId：{}",x.getKey());
+                              ApiResponse<AuthAccessToken> refreshToken = SaaSApi.authService.refreshToken(x.getValue());
+                              AuthAccessToken authRefreshToken = refreshToken.getData();
+                              redisStandaloneUtils.hset(REFRESH_TOKEN,x.getKey(),authRefreshToken.getRefreshToken());
+                              redisStandaloneUtils.hset(ACCESS_TOKEN,x.getKey(),authRefreshToken.getAccessToken());
+                              redisStandaloneUtils.setex(x.getKey(),x.getKey(),authRefreshToken.getExpiresIn().intValue());
+                          }else{
+                              log.info("删除过期租户的token，tenantId：{}",x.getKey());
+                              redisStandaloneUtils.hdel(REFRESH_TOKEN,x.getKey());
+                              redisStandaloneUtils.hdel(ACCESS_TOKEN,x.getKey());
+                          }
+                      });
+                  }
                 },authAccessToken.getExpiresIn()/15,authAccessToken.getExpiresIn()/8,TimeUnit.SECONDS);
 
                 filterChain.doFilter(servletRequest, servletResponse);
@@ -135,8 +146,8 @@ public class SaaSAuthFilter implements Filter {
                log.info("重定向地址：{}", location);
                response.addHeader("Location", location);
                response.setStatus(HttpStatus.FOUND.value());
-               redisStandaloneUtils.del("access-token");
-               redisStandaloneUtils.del("refresh-token");
+               redisStandaloneUtils.hdel(ACCESS_TOKEN,tenantId);
+               redisStandaloneUtils.hdel(REFRESH_TOKEN,tenantId);
               return;
            }
         }

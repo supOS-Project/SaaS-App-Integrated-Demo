@@ -35,7 +35,7 @@ public class CommandController {
         if (StringUtils.isBlank(tenantId)) {
             return new ApiResponse("tenantId不能为空", null, 200, 10000);
         }
-        String accessToken = redisStandaloneUtils.get("access-token");
+        String accessToken = redisStandaloneUtils.hget("access-token",tenantId);
         Tenant tenant = JSONObject.parseObject(redisStandaloneUtils.get("TENANT-" + tenantId), Tenant.class);
         switch (method) {
             case "users/detail":

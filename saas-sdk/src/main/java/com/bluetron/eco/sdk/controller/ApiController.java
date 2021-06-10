@@ -1,6 +1,7 @@
 package com.bluetron.eco.sdk.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.bluetron.eco.sdk.config.SuposConfig;
 import com.bluetron.eco.sdk.dto.common.ResponseResult;
 import com.bluetron.eco.sdk.dto.common.ResultCode;
@@ -8,6 +9,7 @@ import com.bluetron.eco.sdk.dto.tenant.OpeningAppTenantReqDTO;
 import com.bluetron.eco.sdk.dto.tenant.QuerySaasAppReqDTO;
 import com.bluetron.eco.sdk.dto.tenant.RenewAppTenantReqDTO;
 import com.bluetron.eco.sdk.util.RSAUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -16,7 +18,7 @@ import javax.validation.Valid;
 /**
  * @author cnq
  */
-
+@Slf4j
 public abstract class ApiController {
     public static final String PUBLIC_KEY = SuposConfig.getRsaPublicKey();
 
@@ -33,6 +35,7 @@ public abstract class ApiController {
         if (param == null) {
             return ResponseResult.FAIL(ResultCode.INVALID_INPUT);
         }
+        log.info("租户开通==》参数:{}", JSONObject.toJSONString(param));
         // 校验参数签名，签名校验不通过则请求不合法
         boolean verify= RSAUtil.verify(param.createSignString(),PUBLIC_KEY,param.getSign());
         if (!verify){
@@ -57,6 +60,7 @@ public abstract class ApiController {
      */
     @PostMapping("/tenants/status")
     public ResponseResult changeStatus(@Valid @RequestBody QuerySaasAppReqDTO param) throws Exception{
+        log.info("租户状态查询==》参数:{}", JSONObject.toJSONString(param));
         // 校验参数签名，签名校验不通过则请求不合法
         boolean verify=RSAUtil.verify(param.createSignString(),PUBLIC_KEY,param.getSign());
         if (!verify){
@@ -80,6 +84,7 @@ public abstract class ApiController {
      */
     @PostMapping("/renew")
     public ResponseResult renew(@Valid @RequestBody RenewAppTenantReqDTO param) throws Exception {
+        log.info("租户续期==》参数:{}", JSONObject.toJSONString(param));
         // 校验参数签名，签名校验不通过则请求不合法
         boolean verify=RSAUtil.verify(param.createSignString(),PUBLIC_KEY,param.getSign());
         if (!verify){
@@ -105,6 +110,7 @@ public abstract class ApiController {
      */
     @PostMapping("/stop")
     public ResponseResult stop(@Valid @RequestBody QuerySaasAppReqDTO param) throws Exception {
+        log.info("租户停止==》参数:{}", JSONObject.toJSONString(param));
         // 校验参数签名，签名校验不通过则请求不合法
         boolean verify=RSAUtil.verify(param.createSignString(),PUBLIC_KEY,param.getSign());
         if (!verify){

@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/tenant_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
-    username:
-    password:
+    username: test
+    password: 123456
 server:
   port: 30001
 # Mybatis 配置

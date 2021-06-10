@@ -33,7 +33,6 @@ public class TenantApiController extends ApiController {
      */
     @Override
     public ResponseResult doOpenTenant(OpeningAppTenantReqDTO param){
-        log.info("租户开通==》参数:{}", JSONObject.toJSONString(param));
         //检查租户是否已经开通
         Tenant tenantChecked = tenantService.getTenant(param.getInstanceId(), param.getAppId(), null);
         if (!ObjectUtil.isNull(tenantChecked)) {
@@ -52,7 +51,6 @@ public class TenantApiController extends ApiController {
      */
     @Override
     public ResponseResult doQueryStatus(QuerySaasAppReqDTO param){
-        log.info("租户状态查询==》参数:{}", JSONObject.toJSONString(param));
         Tenant tenantChecked = tenantService.getTenant(null, param.getAppId(), param.getTenantId());
         if (ObjectUtil.isNull(tenantChecked)) {
             return ResponseResult.FAIL(ResultCode.TENANT_NOT_EXIST);
@@ -72,7 +70,6 @@ public class TenantApiController extends ApiController {
      */
    @Override
     public ResponseResult doRenew(RenewAppTenantReqDTO param) {
-        log.info("租户续期==》参数:{}", JSONObject.toJSONString(param));
         Tenant tenantChecked = tenantService.getTenant(null, param.getAppId(), param.getTenantId());
         if (ObjectUtil.isNull(tenantChecked)) {
             return ResponseResult.FAIL(ResultCode.TENANT_NOT_EXIST);
@@ -89,7 +86,6 @@ public class TenantApiController extends ApiController {
      */
     @Override
     public ResponseResult doStop( QuerySaasAppReqDTO param) {
-        log.info("租户停止==》参数:{}", JSONObject.toJSONString(param));
         Tenant tenantChecked = tenantService.getTenant(null, param.getAppId(), param.getTenantId());
         if (ObjectUtil.isNull(tenantChecked)) {
             return ResponseResult.FAIL(ResultCode.TENANT_NOT_EXIST);
