@@ -13,9 +13,11 @@ public class TestMain {
     private RedisStandaloneUtils redisStandaloneUtils;
     private Tenant tenant;
     private String accessToken;
+    String host="127.0.0.1";
+    Integer port=6379;
     @Before
     public void init(){
-        redisStandaloneUtils=new RedisStandaloneUtils();
+        redisStandaloneUtils=new RedisStandaloneUtils(host,port);
         String tenantId="3294bd07b7b04d2c926929dc92cc8680";
         accessToken = redisStandaloneUtils.get("access-token");
         tenant = JSONObject.parseObject(redisStandaloneUtils.get("TENANT-" + tenantId), Tenant.class);

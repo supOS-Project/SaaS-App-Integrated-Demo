@@ -4,9 +4,10 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ListPosition;
 import redis.clients.jedis.params.SetParams;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class RedisStandaloneUtils {
@@ -14,20 +15,22 @@ public class RedisStandaloneUtils {
     private final static String NIL = "nil";
     private Jedis jedis;
 
-    public RedisStandaloneUtils() {
-        jedis = new Jedis("127.0.0.1", 6379);
+    public RedisStandaloneUtils(String host,Integer port) {
+        jedis = new Jedis(host, port);
     }
     //##########################################  String  Start ###################################################
 
     /**
      * 检查给定 key 是否存在
      * 若 key 存在返回 true ，否则返回 false 。
+     *
      * @param key
      * @return
      */
-    public boolean exists(String key){
-            return jedis.exists(key);
+    public boolean exists(String key) {
+        return jedis.exists(key);
     }
+
     /**
      * 字符串-设置键值，永不过期
      *
@@ -39,15 +42,18 @@ public class RedisStandaloneUtils {
         String res = jedis.set(key, value);
         return OK.equals(res);
     }
+
     /**
      * 删除key
-     * @param key   key
+     *
+     * @param key key
      * @return 设置结果，成功返回true
      */
     public boolean del(String key) {
         long res = jedis.del(key);
-        return res>0;
+        return res > 0;
     }
+
     /**
      * 字符串-设置键值，永不过期.设置前判断键是否存在，只有不存在才会设置成功
      *

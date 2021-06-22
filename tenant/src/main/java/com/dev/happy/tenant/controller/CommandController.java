@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -30,12 +31,14 @@ public class CommandController {
     private RedisStandaloneUtils redisStandaloneUtils;
 
     @PostMapping("/exec")
-    public ApiResponse exec(String method, @RequestBody JSONObject params) {
+    public ApiResponse exec(String method, @RequestBody JSONObject params, HttpServletRequest request) {
         String tenantId = params.getString("tenantId");
         if (StringUtils.isBlank(tenantId)) {
             return new ApiResponse("tenantId不能为空", null, 200, 10000);
         }
-        String accessToken = redisStandaloneUtils.hget("access-token",tenantId);
+       String token= request.getHeader("token");
+        String accessTokenKey=token.split("-")[0];
+        String accessToken = redisStandaloneUtils.hget("access-token",accessTokenKey);
         Tenant tenant = JSONObject.parseObject(redisStandaloneUtils.get("TENANT-" + tenantId), Tenant.class);
         switch (method) {
             case "users/detail":

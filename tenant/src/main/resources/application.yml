@@ -4,6 +4,9 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/tenant_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
     username: test
     password: 123456
+  redis:
+    host: 127.0.0.1
+    port: 6379
 server:
   port: 30001
 # Mybatis 配置
@@ -36,3 +39,5 @@ logging:
         happy:
           tenant:
             mapper: debug
+app:
+  home-url: http://localhost:30001/home

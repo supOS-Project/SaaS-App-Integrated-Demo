@@ -45,6 +45,7 @@
 </table>
 <script type="application/javascript">
     let tenantId;
+    let token;
     $(document).ready(function () {
 
         function getUrlParam(name) {
@@ -56,7 +57,21 @@
             if (r != null) return unescape(r[2]);
             return null;
         }
+        function getCookie(name) {
+            let prefix = name + "="
+            let start = document.cookie.indexOf(prefix)
+            if (start == -1) {
+                return null;
+            }
+            let end = document.cookie.indexOf(";", start + prefix.length)
+            if (end == -1) {
+                end = document.cookie.length;
+            }
+            let value = document.cookie.substring(start + prefix.length, end)
+            return unescape(value);
+        }
         tenantId=getUrlParam("tenantId");
+        token=getCookie("token");
         $("#apiParam").val("{\"tenantId\":\""+tenantId+"\",\"username\":\"test\"}");
         $("#methodName").change(function () {
             let baseQuest = new Object();
@@ -177,7 +192,8 @@
             $.ajax({
                 url: "/command/exec?method=" + $("#methodName").val()+"&tenantId="+tenantId,
                 type: "POST",
-                contentType: "application/json",
+                headers:{'Content-Type':'application/json;charset=utf8','token':token},
+                // contentType: "application/json",
                 dataType: "JSON",
                 data: $("#apiParam").val(),
                 success: function (res) {

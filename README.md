@@ -3,7 +3,7 @@
   * 基于spring boot 2.3.10.RELEASE  
   * 持久层ORM采用mybatis-plus
   * 缓存使用redis，client使用jedis
-代码clone后配置相关信息就能够运行，需修改的配置如下
+代码clone后配置相关信息就能够运行，需修改的配置如下  
     1）bluetron-saas-sdk.properties
     ```properties
         # 开放平台创建的saas app的AppID
@@ -16,11 +16,16 @@
     2)application.yml
     ```yaml
         spring:
-        datasource:
-        driver-class-name: com.mysql.jdbc.Driver
-        url: jdbc:mysql://xxx.xxx.xxx.xxx:xxx/xxxx?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
-        username: xxx
-        password: xxx
+          datasource:
+            driver-class-name: com.mysql.jdbc.Driver
+            url: jdbc:mysql://xxx.xxx.xxx.xxx:xxx/xxxx?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+            username: xxx
+            password: xxx
+          redis:
+            host: xxx.xx.xx.xxx
+            port: 6379
+        app:
+         home-url: http://localhost:30001/home #oauth2授权后跳转的地址
     ```
 代码层次：  
   ```text  
@@ -69,3 +74,7 @@
                     └─java
     
   ```
+oauth2鉴权：com.dev.happy.tenant.controller.AuthController  
+open-api调用示例：com.dev.happy.tenant.controller.CommandController  
+应用自定义权限校验：com.dev.happy.tenant.filters.AuthFilter
+首页：localhost:30001/home
