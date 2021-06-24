@@ -1,6 +1,7 @@
 package com.dev.happy.tenant.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bluetron.eco.sdk.dto.user.UserRes;
 import com.dev.happy.tenant.entity.User;
 
 public interface UserService extends IService<User> {
@@ -9,5 +10,6 @@ public interface UserService extends IService<User> {
      * @param name
      * @return
      */
-    User getByName(String name);
+    User getByTenantIdAndName(String tenantId,String name);
+    User saveAndGet(String tenantId,UserRes userRes);
 }

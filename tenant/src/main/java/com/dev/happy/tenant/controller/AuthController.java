@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.bluetron.eco.sdk.api.SaaSApi;
 import com.bluetron.eco.sdk.dto.auth.AuthAccessToken;
 import com.bluetron.eco.sdk.dto.common.ApiResponse;
+import com.bluetron.eco.sdk.dto.user.UserRes;
 import com.dev.happy.tenant.entity.Tenant;
 import com.dev.happy.tenant.entity.User;
 import com.dev.happy.tenant.service.TenantService;
@@ -90,8 +91,13 @@ public class AuthController {
                     redisStandaloneUtils.hset(ACCESS_TOKEN,key,authAccessToken.getAccessToken());
                     redisStandaloneUtils.setex(key,UUID.randomUUID().toString(),authAccessToken.getExpiresIn().intValue());
                     String username=authAccessToken.getUsername();
-                    //TODO SaaS服务自身的权限业务,此处相当于应用原来的登录操作 eg:
-                    User loginUser=userService.getByName(username);
+                    //TODO  SaaS服务自身的权限业务,此处相当于应用原来的登录操作 eg:
+                    User loginUser=userService.getByTenantIdAndName(tenantId,username);
+                    //如果应用的用户表中没有用户 则使用open-api获取登录用户信息并插入用户表中
+                    if(loginUser==null){
+                        ApiResponse<UserRes> res=  SaaSApi.userService.getInfo(tenant.getInstanceName(), tenant.getRegion(), authAccessToken.getAccessToken(), username);
+                        loginUser=userService.saveAndGet(tenantId,res.getData());
+                    }
                     //需要将tenantId及username放入token中，以便根据tenantId+username获取supOS的对应用户的accessToken
                     String tokenKey=key+"-"+ UUID.randomUUID().toString().toLowerCase().replaceAll("-","");
                     redisStandaloneUtils.setex(tokenKey,JSONObject.toJSONString(loginUser),30,TimeUnit.MINUTES);

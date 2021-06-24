@@ -12,8 +12,10 @@ import java.util.Date;
 public class User implements Serializable {
         private Long id;
         private String name;
-        private String email;
-        private String phone;
         private Date createTime;
         private Date updateTime;
+        private String tenantId;
+        private Integer accountType;
+        private String personCode;
+        private String personName;
 }
