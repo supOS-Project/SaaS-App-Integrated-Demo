@@ -8,7 +8,9 @@ spring:
     host: 127.0.0.1
     port: 6379
 server:
-  port: 30001
+  port: 30002
+  servlet:
+    context-path:
 # Mybatis 配置
 mybatis-plus:
   #mapper-locations: classpath*:mapping/*Mapper.xml
@@ -40,4 +42,5 @@ logging:
           tenant:
             mapper: debug
 app:
-  home-url: http://localhost:30001/home
+  home-url: http://localhost:30002/home
+  #http://localhost:30002/home

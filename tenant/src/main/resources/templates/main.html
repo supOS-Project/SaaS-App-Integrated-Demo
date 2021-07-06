@@ -57,21 +57,9 @@
             if (r != null) return unescape(r[2]);
             return null;
         }
-        function getCookie(name) {
-            let prefix = name + "="
-            let start = document.cookie.indexOf(prefix)
-            if (start == -1) {
-                return null;
-            }
-            let end = document.cookie.indexOf(";", start + prefix.length)
-            if (end == -1) {
-                end = document.cookie.length;
-            }
-            let value = document.cookie.substring(start + prefix.length, end)
-            return unescape(value);
-        }
         tenantId=getUrlParam("tenantId");
-        token=getCookie("token");
+        token=getUrlParam("token");
+        sessionStorage.setItem("token",token);
         $("#apiParam").val("{\"tenantId\":\""+tenantId+"\",\"username\":\"test\"}");
         $("#methodName").change(function () {
             let baseQuest = new Object();

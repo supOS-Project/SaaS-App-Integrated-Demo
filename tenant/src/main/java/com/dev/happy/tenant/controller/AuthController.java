@@ -91,7 +91,7 @@ public class AuthController {
                     redisStandaloneUtils.hset(ACCESS_TOKEN,key,authAccessToken.getAccessToken());
                     redisStandaloneUtils.setex(key,UUID.randomUUID().toString(),authAccessToken.getExpiresIn().intValue());
                     String username=authAccessToken.getUsername();
-                    //TODO  SaaS服务自身的权限业务,此处相当于应用原来的登录操作 eg:
+                    //TODO  SaaS服务自身的权限业务,此处相当于应用原来的登录成功后操作 eg:
                     User loginUser=userService.getByTenantIdAndName(tenantId,username);
                     //如果应用的用户表中没有用户 则使用open-api获取登录用户信息并插入用户表中
                     if(loginUser==null){
@@ -101,9 +101,7 @@ public class AuthController {
                     //需要将tenantId及username放入token中，以便根据tenantId+username获取supOS的对应用户的accessToken
                     String tokenKey=key+"-"+ UUID.randomUUID().toString().toLowerCase().replaceAll("-","");
                     redisStandaloneUtils.setex(tokenKey,JSONObject.toJSONString(loginUser),30,TimeUnit.MINUTES);
-                    //最新版谷歌浏览器存在cookie跨域丢失的，需增加SameSite=None; Secure=true属性
-                    response.setHeader(Header.SET_COOKIE.getValue(),"token="+tokenKey+";Path=/; SameSite=None; Secure=true");
-                    response.addHeader("Location", homeUrl+"?tenantId="+tenantId);
+                    response.addHeader("Location", homeUrl+"?tenantId="+tenantId+"&token="+tokenKey);
                     response.setStatus(HttpStatus.FOUND.value());
                 }
             }

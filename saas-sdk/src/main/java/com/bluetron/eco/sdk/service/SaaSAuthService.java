@@ -12,8 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SaaSAuthService {
-    private static final String SAAS_OAUTH_BASE = "https://api.supos.com/services/oauth2";
-
+    private static final String SAAS_OAUTH_BASE = SuposConfig.getBossBaseUrl()+"/services/oauth2";
     /***
      * oauth2 授权跳转地址
      * @param redirectUri

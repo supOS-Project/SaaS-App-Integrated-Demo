@@ -29,21 +29,22 @@ public class SaaSApi {
     public static SaaSPersonService personService = new SaaSPersonService();
     public static SaaSOrgService orgService = new SaaSOrgService();
     public static SaaSNotificationService notificationService = new SaaSNotificationService();
-    private static final String BOSS_PATH="https://api.supos.com/ess-gate/%s/%s/open-api";
-    private static final String BOSS_HOST="https://api.supos.com";
+    private static final String BOSS_PATH = SuposConfig.getBossBaseUrl() + "/ess-gate/%s/%s/open-api";
 
-    public static HttpResponse doRequest(String instanceName,String region,String accessToken,Object requestBody, SaaSApiEnum SaaSApiEnum, Object... pathParam) {
+    public static HttpResponse doRequest(String instanceName, String region, String accessToken, Object requestBody, SaaSApiEnum SaaSApiEnum, Object... pathParam) {
         long t1 = System.currentTimeMillis();
+        String url = SaaSApiEnum.getUrl();
+        Method method = SaaSApiEnum.getMethod();
         if (null != pathParam && pathParam.length > 0) {
-            SaaSApiEnum.setUrl(String.format(SaaSApiEnum.getUrl(), pathParam));
+            url = String.format(SaaSApiEnum.getUrl(), pathParam);
         }
-        String bossApi=String.format(BOSS_PATH,region,instanceName);
-        String wholeUrl = bossApi.concat(SaaSApiEnum.getUrl());
-        log.info(">>>>>>>>>>>>> 开始调用openAPI request URL : {} , method : {} , accessToken : {} , body : {} <<<<<<<<<<<<<<<<", new Object[]{wholeUrl, SaaSApiEnum.getMethod(),accessToken, JSON.toJSONString(requestBody)});
-        HttpRequest httpRequest = HttpUtil.createRequest(SaaSApiEnum.getMethod(), wholeUrl);
-        Map<String, String> headers = getSignatureHeader(requestBody, SaaSApiEnum,accessToken,instanceName,region);
+        String bossApi = String.format(BOSS_PATH, region, instanceName);
+        String wholeUrl = bossApi.concat(url);
+        log.info(">>>>>>>>>>>>> 开始调用openAPI request URL : {} , method : {} , accessToken : {} , body : {} <<<<<<<<<<<<<<<<", new Object[]{wholeUrl, SaaSApiEnum.getMethod(), accessToken, JSON.toJSONString(requestBody)});
+        HttpRequest httpRequest = HttpUtil.createRequest(method, wholeUrl);
+        Map<String, String> headers = getSignatureHeader(requestBody, url, method, accessToken, instanceName, region);
         httpRequest.headerMap(headers, false);
-        switch(SaaSApiEnum.getMethod()) {
+        switch (SaaSApiEnum.getMethod()) {
             case GET:
             case DELETE:
                 Map<String, Object> queryMap = BeanUtil.beanToMap(requestBody);
@@ -60,27 +61,27 @@ public class SaaSApi {
         return response;
     }
 
-    public static HttpResponse doRequest(String instanceName,String region,String accessToken,SaaSApiEnum SaaSApiEnum, Object... pathParam) {
-        return doRequest(instanceName, region,accessToken,null, SaaSApiEnum, pathParam);
+    public static HttpResponse doRequest(String instanceName, String region, String accessToken, SaaSApiEnum SaaSApiEnum, Object... pathParam) {
+        return doRequest(instanceName, region, accessToken, null, SaaSApiEnum, pathParam);
     }
 
-    private static Map<String, String> getSignatureHeader(Object requestBody, SaaSApiEnum SaaSApiEnum,String accessToken,String instanceName,String region ) {
+    private static Map<String, String> getSignatureHeader(Object requestBody, String url, Method method, String accessToken, String instanceName, String region) {
         Map<String, String> headers = MapUtil.newHashMap();
-        headers.put("X-MC-Date", DateUtil.format(new Date(),"yyyyMMdd'T'HHmmss'Z'"));
-        headers.put("X-MC-Type","openAPI");
-        headers.put("token",accessToken);
+        headers.put("X-MC-Date", DateUtil.format(new Date(), "yyyyMMdd'T'HHmmss'Z'"));
+        headers.put("X-MC-Type", "openAPI");
+        headers.put("token", accessToken);
         StringBuilder sb = new StringBuilder();
         //HTTP Schema
-        sb.append(SaaSApiEnum.getMethod()).append("\n");
+        sb.append(method).append("\n");
         //HTTP URI
-        String uri=String.format(BOSS_PATH,region,instanceName).replace(BOSS_HOST,"").concat(SaaSApiEnum.getUrl());
+        String uri = String.format(BOSS_PATH, region, instanceName).replace(SuposConfig.getBossBaseUrl(), "").concat(url);
         sb.append(uri).append("\n");
         //HTTP ContentType
         sb.append("application/json;charset=utf-8").append("\n");
         String signature;
-        if (Method.GET.equals(SaaSApiEnum.getMethod())) {
+        if (Method.GET.equals(method)) {
             Map<String, Object> queryMap = BeanUtil.beanToMap(requestBody);
-            signature = beanToQueryString(queryMap,false);
+            signature = beanToQueryString(queryMap, false);
             signature = getSortQueryStr(signature);
             sb.append(signature);
         }
@@ -96,11 +97,13 @@ public class SaaSApi {
         log.info(">>>>>>>>>>>>> AK/SK 签名结果：{} <<<<<<<<<<<<<<<<", finalSignature);
         return headers;
     }
+
     private static String getCanonicalCustomHeaders(Map<String, String> headMap) {
         return "x-mc-date:" + headMap.get("X-MC-Date") + ";x-mc-type:" + headMap.get("X-MC-Type");
     }
+
     private static String getSortQueryStr(String apiPath) {
-        if(apiPath==null){
+        if (apiPath == null) {
             return "";
         }
         Map<String, Object> map = getUrlParams(apiPath);
@@ -120,24 +123,25 @@ public class SaaSApi {
         String[] params = url.split("&");
         String[] var3 = params;
         int var4 = params.length;
-        for(int var5 = 0; var5 < var4; ++var5) {
+        for (int var5 = 0; var5 < var4; ++var5) {
             String param = var3[var5];
             String[] p = param.split("=");
             if (p.length == 2) {
-                if(!"null".equals(p[1])){
+                if (!"null".equals(p[1])) {
                     map.put(p[0], p[1]);
                 }
-            }else{
+            } else {
                 map.put(p[0], "");
             }
         }
         return map;
     }
-    private static String beanToQueryString(Map<String,Object> paramMap,boolean isEncoder){
-        if(isEncoder){
-         return   HttpUtil.toParams(paramMap);
+
+    private static String beanToQueryString(Map<String, Object> paramMap, boolean isEncoder) {
+        if (isEncoder) {
+            return HttpUtil.toParams(paramMap);
         }
-        if(paramMap!=null && !paramMap.isEmpty()) {
+        if (paramMap != null && !paramMap.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             paramMap.forEach((key, value) -> sb.append(key).append("=").append(value).append("&"));
             return sb.substring(0, sb.length() - 1);
