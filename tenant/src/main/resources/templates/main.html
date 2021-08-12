@@ -181,7 +181,6 @@
                 url: "/command/exec?method=" + $("#methodName").val()+"&tenantId="+tenantId,
                 type: "POST",
                 headers:{'Content-Type':'application/json;charset=utf8','token':token},
-                // contentType: "application/json",
                 dataType: "JSON",
                 data: $("#apiParam").val(),
                 success: function (res) {

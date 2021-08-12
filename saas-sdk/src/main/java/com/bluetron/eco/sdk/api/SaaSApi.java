@@ -28,6 +28,7 @@ public class SaaSApi {
     public static SaaSUserService userService = new SaaSUserService();
     public static SaaSPersonService personService = new SaaSPersonService();
     public static SaaSOrgService orgService = new SaaSOrgService();
+    public static WebHookService webHookService = new WebHookService();
     public static SaaSNotificationService notificationService = new SaaSNotificationService();
     private static final String BOSS_PATH = SuposConfig.getBossBaseUrl() + "/ess-gate/%s/%s/open-api";
 

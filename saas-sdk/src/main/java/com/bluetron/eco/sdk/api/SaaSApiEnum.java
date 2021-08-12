@@ -25,6 +25,8 @@ public enum SaaSApiEnum {
     POSITION_LIST_BY_COMPANY("查询指定编码的公司的岗位列表", "/companies/%s/positions", Method.GET),
     DEPARTMENTS_LIST_BY_COMPANY("查询指定编码的公司的部门列表", "/companies/%s/departments", Method.GET),
     NOTIFICATION_SEND_MESSAGE("消息发送", "/p/notification/v2/messages", Method.POST),
+    WEBHOOK_SUBSCRIBE("webhook消息订阅","/webhook/v2/topics/subscribe", Method.POST),
+    WEBHOOK_SUBSCRIBE_READINESS("webhook消息订阅接收就绪","/webhook/v2/topics/readiness", Method.PUT),
     IGNORE("IGNORE", "IGNORE", Method.PUT);
 
     private final String name;
