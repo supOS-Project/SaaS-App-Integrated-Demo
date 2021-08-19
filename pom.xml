@@ -8,6 +8,7 @@
     <artifactId>tenant-demo</artifactId>
     <version>1.0.0</version>
     <modules>
+        <module>saas-sdk</module>
         <module>tenant</module>
     </modules>
     <parent>

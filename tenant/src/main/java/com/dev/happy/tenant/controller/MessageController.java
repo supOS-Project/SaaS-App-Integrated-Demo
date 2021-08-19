@@ -43,6 +43,12 @@ public class MessageController {
     @Resource
     private RedisStandaloneUtils redisStandaloneUtils;
 
+    /**
+     * webhook 订阅回调接口
+     * @param tenantId
+     * @param message
+     * @return
+     */
     @PostMapping("/callback/{tenantId}")
     @ResponseBody
     public ResponseResult callbackForTenant(@PathVariable String tenantId, @RequestBody String message) {
@@ -94,6 +100,11 @@ public class MessageController {
         return list;
     }
 
+    /**
+     * webhook消息订阅，调用此接口后需再调用readiness，不然接收不到消息
+     * @param request
+     * @return
+     */
     @GetMapping("/subscribe")
     @ResponseBody
     public ResponseResult subscribe(HttpServletRequest request) {
@@ -106,6 +117,11 @@ public class MessageController {
         return ResponseResult.SUCCESS();
     }
 
+    /**
+     * 通知webhook服务 app已就绪可以推送消息
+     * @param request
+     * @return
+     */
     @GetMapping("/readiness")
     @ResponseBody
     public ResponseResult readiness(HttpServletRequest request) {

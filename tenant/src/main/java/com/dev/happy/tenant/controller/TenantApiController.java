@@ -1,7 +1,6 @@
 package com.dev.happy.tenant.controller;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.bluetron.eco.sdk.controller.ApiController;
 import com.bluetron.eco.sdk.dto.common.ResponseResult;
 import com.bluetron.eco.sdk.dto.common.ResultCode;

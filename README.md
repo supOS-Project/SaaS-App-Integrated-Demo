@@ -2,7 +2,7 @@
 该Demo实现了SupOS的oauth2鉴权及常用的open-api(用户、组织等)  
   * 基于spring boot 2.3.10.RELEASE  
   * 持久层ORM采用mybatis-plus
-  * 缓存使用redis，client使用jedis
+  * 缓存使用redis，client使用redisTemplate
 代码clone后配置相关信息就能够运行，需修改的配置如下  
     1）bluetron-saas-sdk.properties
     ```properties
@@ -29,52 +29,64 @@
     ```
 代码层次：  
   ```text  
-        ├─saas-sdk
-        │  └─src
-        │      └─main
-        │          ├─java
-        │          │  └─com
-        │          │      └─bluetron
-        │          │          └─eco
-        │          │              └─sdk
-        │          │                  ├─api
-        │          │                  ├─config
-        │          │                  ├─controller
-        │          │                  ├─dto
-        │          │                  │  ├─auth
-        │          │                  │  ├─common
-        │          │                  │  ├─org
-        │          │                  │  ├─role
-        │          │                  │  ├─tenant
-        │          │                  │  └─user
-        │          │                  ├─service
-        │          │                  └─util
-        │          └─resources
-        └─tenant
-            ├─ddl
-            └─src
-                ├─main
-                │  ├─java
-                │  │  └─com
-                │  │      └─dev
-                │  │          └─happy
-                │  │              └─tenant
-                │  │                  ├─controller
-                │  │                  ├─entity
-                │  │                  ├─enums
-                │  │                  ├─filters
-                │  │                  ├─mapper
-                │  │                  ├─service
-                │  │                  │  └─impl
-                │  │                  └─utils
-                │  └─resources
-                │      ├─static
-                │      └─templates
-                └─test
-                    └─java
-    
+  ├─saas-sdk
+│  └─src
+│      └─main
+│          ├─java
+│          │  └─com
+│          │      └─bluetron
+│          │          └─eco
+│          │              └─sdk
+│          │                  ├─api
+│          │                  ├─config
+│          │                  ├─controller
+│          │                  ├─dto
+│          │                  │  ├─auth
+│          │                  │  ├─common
+│          │                  │  └─tenant
+│          │                  ├─service
+│          │                  └─util
+│          └─resources
+└─tenant
+    ├─ddl
+    └─src
+        └─main
+            ├─java
+            │  └─com
+            │      └─dev
+            │          └─happy
+            │              └─tenant
+            │                  ├─config
+            │                  ├─constant
+            │                  ├─controller
+            │                  ├─entity
+            │                  │  └─ext
+            │                  ├─enums
+            │                  ├─filters
+            │                  ├─mapper
+            │                  ├─service
+            │                  ├─utils
+            │                  └─vo
+            └─resources
+                ├─db
+                │  └─migration
+                ├─mapper
+                ├─static
+                │  ├─css
+                │  ├─js
+                │  │  └─manage
+                │  └─layui
+                │      ├─css
+                │      │  └─modules
+                │      │      ├─laydate
+                │      │      │  └─default
+                │      │      └─layer
+                │      │          └─default
+                │      └─font
+                └─templates
+                    └─manage
   ```
-oauth2鉴权：com.dev.happy.tenant.controller.AuthController  
-open-api调用示例：com.dev.happy.tenant.controller.CommandController  
-应用自定义权限校验：com.dev.happy.tenant.filters.AuthFilter
-首页：localhost:30001/home
+oauth2鉴权及权限校验：com.dev.happy.tenant.filters.AuthFilter
+租户接口实现：com.dev.happy.tenant.controller.TenantApiController
+webhook消息订阅：com.dev.happy.tenant.controller.MessageController
+

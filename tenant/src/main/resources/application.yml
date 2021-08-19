@@ -49,4 +49,5 @@ logging:
           tenant:
             mapper: debug
 app:
+  #webhook回调地址
   webhook-callback: http://47.107.149.177:30001/message/callback/
