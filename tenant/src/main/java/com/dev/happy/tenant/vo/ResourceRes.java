@@ -1,4 +1,4 @@
-package com.bluetron.eco.sdk.dto.user;
+package com.dev.happy.tenant.vo;
 
 import java.io.Serializable;
 import java.util.List;

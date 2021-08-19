@@ -8,7 +8,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 /**
- * @author xxx
+ * @author caonuoqi@supos.com
  */
 public class RSAUtil {
 

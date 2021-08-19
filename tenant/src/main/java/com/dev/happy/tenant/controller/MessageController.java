@@ -7,8 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bluetron.eco.sdk.dto.ActionType;
 import com.bluetron.eco.sdk.dto.TopicType;
-import com.bluetron.eco.sdk.dto.common.ApiResponse;
-import com.bluetron.eco.sdk.dto.common.ApiResponseUtil;
+import com.bluetron.eco.sdk.dto.common.ResponseResult;
 import com.dev.happy.tenant.constant.AuthConstant;
 import com.dev.happy.tenant.entity.MessageHistory;
 import com.dev.happy.tenant.entity.Tenant;
@@ -46,7 +45,7 @@ public class MessageController {
 
     @PostMapping("/callback/{tenantId}")
     @ResponseBody
-    public ApiResponse callbackForTenant(@PathVariable String tenantId, @RequestBody String message) {
+    public ResponseResult callbackForTenant(@PathVariable String tenantId, @RequestBody String message) {
         log.info("tenantId:{},message:{}", tenantId, message);
         MessageHistory messageHistory = new MessageHistory();
         System.out.println(message);
@@ -73,7 +72,7 @@ public class MessageController {
             case TopicType.TOPIC_USER:
                 userService.messageHandle(tenantId, actionType, body);
         }
-        return ApiResponseUtil.getSuccessResponse();
+        return ResponseResult.SUCCESS();
     }
 
     @GetMapping
@@ -97,25 +96,25 @@ public class MessageController {
 
     @GetMapping("/subscribe")
     @ResponseBody
-    public ApiResponse subscribe(HttpServletRequest request) {
+    public ResponseResult subscribe(HttpServletRequest request) {
         String tenantId = CookieUtil.getCookie("tenantId", request);
         String token = CookieUtil.getCookie("userToken", request);
         String accessTokenKey = token.split("-")[0];
         String accessToken = (String)redisStandaloneUtils.get(AuthConstant.ACCESS_TOKEN+":"+accessTokenKey);
         Tenant tenant = JSONObject.parseObject((String)redisStandaloneUtils.get("TENANT-" + tenantId), Tenant.class);
         syncService.subscribeTopic(tenant, accessToken);
-        return ApiResponseUtil.getSuccessResponse();
+        return ResponseResult.SUCCESS();
     }
 
     @GetMapping("/readiness")
     @ResponseBody
-    public ApiResponse readiness(HttpServletRequest request) {
+    public ResponseResult readiness(HttpServletRequest request) {
         String tenantId = CookieUtil.getCookie("tenantId", request);
         String token = CookieUtil.getCookie("userToken", request);
         String accessTokenKey = token.split("-")[0];
         String accessToken =(String) redisStandaloneUtils.get(AuthConstant.ACCESS_TOKEN+":"+accessTokenKey);
         Tenant tenant = JSONObject.parseObject((String)redisStandaloneUtils.get("TENANT-" + tenantId), Tenant.class);
         syncService.receiveReadiness(tenant, accessToken);
-        return ApiResponseUtil.getSuccessResponse();
+        return ResponseResult.SUCCESS();
     }
 }

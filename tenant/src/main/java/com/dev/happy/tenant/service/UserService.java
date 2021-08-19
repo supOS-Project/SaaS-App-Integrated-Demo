@@ -5,11 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bluetron.eco.sdk.dto.ActionType;
-import com.bluetron.eco.sdk.dto.user.UserRes;
 import com.dev.happy.tenant.entity.User;
 import com.dev.happy.tenant.entity.ext.DictInfo;
 import com.dev.happy.tenant.mapper.UserMapper;
-import com.dev.happy.tenant.service.UserService;
+import com.dev.happy.tenant.vo.UserRes;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

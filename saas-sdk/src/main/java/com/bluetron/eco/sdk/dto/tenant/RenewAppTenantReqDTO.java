@@ -1,6 +1,5 @@
 package com.bluetron.eco.sdk.dto.tenant;
 
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 /**

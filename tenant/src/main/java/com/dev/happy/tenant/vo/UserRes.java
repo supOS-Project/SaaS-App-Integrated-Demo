@@ -1,16 +1,9 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
 
-package com.bluetron.eco.sdk.dto.user;
-
-import com.bluetron.eco.sdk.dto.common.RequestDTO;
-import com.bluetron.eco.sdk.dto.role.RoleRes;
+package com.dev.happy.tenant.vo;
 
 import java.util.List;
 
-public class UserRes extends RequestDTO {
+public class UserRes  {
     private String username;
     private String userDesc;
     private Integer accountType;

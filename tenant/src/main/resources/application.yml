@@ -1,8 +1,8 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/saas_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
-    username: test
+    url: jdbc:mysql://192.168.8.56:3307/saas_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+    username: root
     password: 123456
   redis:
     database: 0           # Redis服务器数据库

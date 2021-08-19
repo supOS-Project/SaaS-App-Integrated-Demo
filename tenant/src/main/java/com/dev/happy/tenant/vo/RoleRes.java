@@ -1,11 +1,8 @@
-package com.bluetron.eco.sdk.dto.role;
-
-import com.bluetron.eco.sdk.dto.common.RequestDTO;
-import com.bluetron.eco.sdk.dto.user.ResourceRes;
+package com.dev.happy.tenant.vo;
 
 import java.util.List;
 
-public class RoleRes extends RequestDTO {
+public class RoleRes  {
     private Integer roleId;
     private String code;
     private String name;
@@ -15,8 +12,8 @@ public class RoleRes extends RequestDTO {
     private List<ResourceRes> resources;
     private String createTime;
 
-    public static RoleRes.RoleResBuilder builder() {
-        return new RoleRes.RoleResBuilder();
+    public static RoleResBuilder builder() {
+        return new RoleResBuilder();
     }
 
     public Integer getRoleId() {
@@ -117,42 +114,42 @@ public class RoleRes extends RequestDTO {
         RoleResBuilder() {
         }
 
-        public RoleRes.RoleResBuilder roleId(final Integer roleId) {
+        public RoleResBuilder roleId(final Integer roleId) {
             this.roleId = roleId;
             return this;
         }
 
-        public RoleRes.RoleResBuilder code(final String code) {
+        public RoleResBuilder code(final String code) {
             this.code = code;
             return this;
         }
 
-        public RoleRes.RoleResBuilder name(final String name) {
+        public RoleResBuilder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public RoleRes.RoleResBuilder showName(final String showName) {
+        public RoleResBuilder showName(final String showName) {
             this.showName = showName;
             return this;
         }
 
-        public RoleRes.RoleResBuilder description(final String description) {
+        public RoleResBuilder description(final String description) {
             this.description = description;
             return this;
         }
 
-        public RoleRes.RoleResBuilder underControlled(final Boolean underControlled) {
+        public RoleResBuilder underControlled(final Boolean underControlled) {
             this.underControlled = underControlled;
             return this;
         }
 
-        public RoleRes.RoleResBuilder resources(final List<ResourceRes> resources) {
+        public RoleResBuilder resources(final List<ResourceRes> resources) {
             this.resources = resources;
             return this;
         }
 
-        public RoleRes.RoleResBuilder createTime(final String createTime) {
+        public RoleResBuilder createTime(final String createTime) {
             this.createTime = createTime;
             return this;
         }

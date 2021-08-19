@@ -3,21 +3,18 @@ package com.bluetron.eco.sdk.api;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.crypto.digest.HmacAlgorithm;
 import cn.hutool.http.*;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
 import com.bluetron.eco.sdk.config.SuposConfig;
 import com.bluetron.eco.sdk.service.*;
-import com.google.common.base.Joiner;
-import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.apache.commons.codec.digest.HmacUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * @author caonuoqi@supos.com
@@ -25,12 +22,7 @@ import java.util.TreeMap;
 public class SaaSApi {
     private static final Logger log = LoggerFactory.getLogger(SaaSApi.class);
     public static SaaSAuthService authService = new SaaSAuthService();
-    public static SaaSUserService userService = new SaaSUserService();
-    public static SaaSPersonService personService = new SaaSPersonService();
-    public static SaaSOrgService orgService = new SaaSOrgService();
-    public static WebHookService webHookService = new WebHookService();
-    public static SaaSNotificationService notificationService = new SaaSNotificationService();
-    private static final String BOSS_PATH = SuposConfig.getBossBaseUrl() + "/ess-gate/%s/%s/open-api";
+    private static final String BOSS_PATH = SuposConfig.getBossBaseUrl() + "/ess-gate/%s/%s";
 
     public static HttpResponse doRequest(String instanceName, String region, String accessToken, Object requestBody, SaaSApiEnum SaaSApiEnum, Object... pathParam) {
         long t1 = System.currentTimeMillis();
@@ -41,7 +33,7 @@ public class SaaSApi {
         }
         String bossApi = String.format(BOSS_PATH, region, instanceName);
         String wholeUrl = bossApi.concat(url);
-        log.info(">>>>>>>>>>>>> 开始调用openAPI request URL : {} , method : {} , accessToken : {} , body : {} <<<<<<<<<<<<<<<<", new Object[]{wholeUrl, SaaSApiEnum.getMethod(), accessToken, JSON.toJSONString(requestBody)});
+        log.info(">>>>>>>>>>>>> 开始调用openAPI request URL : {} , method : {} , accessToken : {} , body : {} <<<<<<<<<<<<<<<<", new Object[]{wholeUrl, SaaSApiEnum.getMethod(), accessToken, JSONUtil.toJsonStr(requestBody)});
         HttpRequest httpRequest = HttpUtil.createRequest(method, wholeUrl);
         Map<String, String> headers = getSignatureHeader(requestBody, url, method, accessToken, instanceName, region);
         httpRequest.headerMap(headers, false);
@@ -90,8 +82,7 @@ public class SaaSApi {
         sb.append(getCanonicalCustomHeaders(headers));
         log.info(">>>>>>>>>>>>> AK/SK APPKEY : {}  SECRET_KEY : {} <<<<<<<<<<<<<<<<", SuposConfig.getBossAppId(), SuposConfig.getBossSecretKey());
         log.info(">>>>>>>>>>>>> AK/SK 签名源内容：\n{} \n<<<<<<<<<<<<<<<<", sb);
-        HmacUtils hmacSha256 = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, SuposConfig.getBossSecretKey());
-        signature = hmacSha256.hmacHex(sb.toString());
+        signature = DigestUtil.hmac(HmacAlgorithm.HmacSHA256, SuposConfig.getBossSecretKey().getBytes(StandardCharsets.UTF_8)).digestHex(sb.toString());
         String finalSignature = "Sign " + SuposConfig.getBossAppId() + "-" + signature;
         headers.put("Authorization", finalSignature);
         headers.put(Header.CONTENT_TYPE.getValue(), "application/json;charset=utf-8");
@@ -104,18 +95,47 @@ public class SaaSApi {
     }
 
     private static String getSortQueryStr(String apiPath) {
-        if (apiPath == null) {
-            return "";
-        }
-        Map<String, Object> map = getUrlParams(apiPath);
-        TreeMap<String, Object> queryKvMap = new TreeMap();
-        if (MapUtil.isEmpty(map)) {
+        if (StrUtil.isBlank(apiPath)) {
             return "";
         } else {
-            map.keySet().forEach((paraName) -> {
-                queryKvMap.put(paraName.toLowerCase(), map.get(paraName));
-            });
-            return Joiner.on("&").useForNull("").withKeyValueSeparator("=").join(queryKvMap);
+            Map<String, Object> map = getUrlParams(apiPath);
+            TreeMap<String, Object> queryKvMap = new TreeMap();
+            if (MapUtil.isEmpty(map)) {
+                return "";
+            } else {
+                Iterator iterator = map.entrySet().iterator();
+
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Object> entry = (Map.Entry) iterator.next();
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    queryKvMap.put(key.toLowerCase(Locale.ROOT), value);
+                }
+
+                return getUrlParamsByMap(queryKvMap);
+            }
+        }
+    }
+
+    public static String getUrlParamsByMap(Map<String, Object> map) {
+        if (map == null) {
+            return "";
+        } else {
+            StringBuffer sb = new StringBuffer();
+            Iterator var2 = map.entrySet().iterator();
+
+            while (var2.hasNext()) {
+                Map.Entry<String, Object> entry = (Map.Entry) var2.next();
+                sb.append((String) entry.getKey() + "=" + entry.getValue());
+                sb.append("&");
+            }
+
+            String s = sb.toString();
+            if (s.endsWith("&")) {
+                s = StrUtil.subBefore(s, "&", true);
+            }
+
+            return s;
         }
     }
 

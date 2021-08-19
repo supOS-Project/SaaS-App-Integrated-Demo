@@ -1,18 +1,19 @@
 package com.dev.happy.tenant.service;
 
+import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.bluetron.eco.sdk.api.SaaSApi;
 import com.bluetron.eco.sdk.api.SaaSApiEnum;
-import com.bluetron.eco.sdk.dto.common.ApiResponse;
+import com.bluetron.eco.sdk.dto.TopicType;
 import com.dev.happy.tenant.entity.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -34,9 +35,22 @@ public class SyncService {
     private static final String TYPE_DEPARTMENT = "sync_department_list";
     private static final String TYPE_PERSON = "sync_person_list";
     private static final String TYPE_USER = "sync_user_list";
-
+    /**
+     * 订阅的基础信息 消息列表
+     */
+    private List<String> subscribeList = Arrays.asList(
+            TopicType.TOPIC_COMPANY,
+            TopicType.TOPIC_DEPARTMENT,
+            TopicType.TOPIC_POSITION,
+            TopicType.TOPIC_PERSON,
+            TopicType.TOPIC_USER);
     public void subscribeTopic(Tenant tenant, String accessToken) {
-        SaaSApi.webHookService.subscribe(tenant.getTenantId(), tenant.getAppId(), tenant.getInstanceName(), tenant.getRegion(), webhookCallback, accessToken);
+        JSONObject param = new JSONObject();
+        param.put("appId", SecureUtil.md5(tenant.getAppId() + ":" + tenant.getTenantId()));
+        param.put("tenantId", tenant.getInstanceName().replace("ess-",""));
+        param.put("webhookUrl", webhookCallback + tenant.getTenantId());
+        param.put("topicList", subscribeList);
+        SaaSApi.doRequest(tenant.getInstanceName(),tenant.getRegion(), accessToken, param, SaaSApiEnum.WEBHOOK_SUBSCRIBE, null);
     }
 
     public void syncAll(Tenant tenant, String accessToken) {
@@ -54,7 +68,11 @@ public class SyncService {
     }
 
     public void receiveReadiness(Tenant tenant, String accessToken) {
-        SaaSApi.webHookService.readiness(tenant.getTenantId(), tenant.getAppId(), tenant.getInstanceName(), tenant.getRegion(), accessToken);
+        JSONObject param = new JSONObject();
+        param.put("appId", SecureUtil.md5(tenant.getAppId() + ":" + tenant.getTenantId()));
+        param.put("tenantId", tenant.getInstanceName().replace("ess-",""));
+        param.put("topicList", subscribeList);
+        SaaSApi.doRequest(tenant.getInstanceName(),tenant.getRegion(), accessToken, param, SaaSApiEnum.WEBHOOK_SUBSCRIBE_READINESS, null);
     }
 
     /**
